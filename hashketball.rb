@@ -1,4 +1,4 @@
-    # # # *** N D S *** # # #
+# # # *** N D S *** # # #
 def game_hash 
     hash = {
       :home => {
@@ -121,7 +121,7 @@ def game_hash
 end 
 
 
-    # # # *** A B S T R A C T I O N S *** # # #
+# # # *** A B S T R A C T I O N S *** # # #
 def find_player_by_name(find_player)
     game_hash.each_value do |team_hash|
         found = team_hash[:players].find do |player|
@@ -131,6 +131,7 @@ def find_player_by_name(find_player)
             return found 
         end
     end 
+    nil
 end 
 
 def find_team_by_name(find_team)
@@ -143,13 +144,12 @@ def find_team_by_name(find_team)
     nil
 end 
 
-def find_biggest(stat)
+def find_biggest
     home = game_hash[:home][:players]
     away = game_hash[:away][:players]
-    merge_and_max = home.concat(away).max_by do |player|
-        player[stat]
+    home.concat(away).max_by do |player|
+        yield player
     end 
-    return merge_and_max
 end 
 
 
@@ -157,23 +157,21 @@ end
 def num_points_scored(find_player)
     found_player = find_player_by_name(find_player)
     if found_player 
-        return found_player[:points]
+        found_player[:points]
     end 
-    nil
 end
 
 def shoe_size(find_player)
     found_player = find_player_by_name(find_player)
     if found_player 
-        return found_player[:shoe]
+        found_player[:shoe]
     end
-    nil
 end 
 
 def team_colors(find_team)
     found_team = find_team_by_name(find_team)
-    if found_team
-        return found_team[:colors]
+    if found_team 
+        found_team[:colors]
     end 
 end 
 
@@ -186,6 +184,7 @@ end
 
 def player_numbers(find_team)
     found_team = find_team_by_name(find_team)
+    team_num_arr = []
     if found_team 
         team_num_arr = found_team[:players].map do |player|
             player[:number]
@@ -196,27 +195,27 @@ end
 
 def player_stats(find_player)
     found_player = find_player_by_name(find_player)
+    stats_hash = nil
     if found_player 
         stats_hash = found_player.clone
         stats_hash.delete(:player_name)
+        
     end 
     stats_hash
 end 
 
 def big_shoe_rebounds
-    biggest_shoe = find_biggest(:shoe)
-    if biggest_shoe 
-        return biggest_shoe[:rebounds]
+    biggest_shoe = find_biggest do |player|
+      player[:shoe]
     end 
-    nil
+    biggest_shoe[:rebounds]
 end 
 
 def most_points_scored
-    most_points = find_biggest(:points)
-    if most_points 
-        return most_points[:player_name]
-    end 
-    nil 
+    most_points = find_biggest do |player|
+      player[:points]
+    end
+    most_points[:player_name]
 end 
 
 def winning_team
@@ -229,14 +228,12 @@ def winning_team
 end 
 
 def player_with_longest_name 
-    home = game_hash[:home][:players]
-    away = game_hash[:away][:players]
-    longest = home.concat(away).max_by do |player|
-        player[:player_name].length
+    longest = find_biggest do |player|
+      player[:player_name].length
     end 
     longest[:player_name]
 end 
 
 def long_name_steals_a_ton?
-    find_player_by_name(player_with_longest_name)[:steals] > 20 ? true : false
+    find_player_by_name(player_with_longest_name)[:steals] > 20 
 end 
